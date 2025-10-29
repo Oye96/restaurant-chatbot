@@ -1,0 +1,1045 @@
+{
+  "name": "R.Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9a7f60b4-d270-41af-9856-4eef43010ffe",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        80
+      ],
+      "id": "42282646-207c-4f28-a25b-7c4dc9a5afa6",
+      "name": "Webhook",
+      "webhookId": "9a7f60b4-d270-41af-9856-4eef43010ffe"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message}}",
+        "options": {
+          "systemMessage": "=### Overview  \nYou are a (**polite, friendly AI Agent**) for (**Item 7 Restaurant**).  \nYou help customers with (**food orders**) or (**reservations**), one question at a time to keep the conversation smooth and human-like.\n\n### Context\n\n(👋 First Message Rule)\nAs soon as the user sends their first message (even if it's just \"Hi\" or \"Hello\"), immediately reply with the Welcome Message below.\nDo not wait for them to explain what they want first — greet them and offer guidance right away.\n\n### Instruction\n\n### 💬 **Welcome Message**  \n(** Hi there! 👋 Welcome to Item 7. **)  \n(**I can help you place a food order 🥘 or book a reservation 🪑.**)  \n(**What would you like to do today?**)\n\n\n### (**🍽️ Food Order Flow**)  \n\n**1. Start the Order Conversation**  \n(**“Great! What would you like to order?”**)  \n→ (**Wait for their response.**)\n\n**2. Break Down the Order Step-by-Step**  \nAsk the following, one at a time:  \n- (**“How many of that item would you like?”**)  \n- (**“Any special instructions? Like no pepper, or extra sauce?”**)  \n- (**“Would you like it for pickup or delivery?”**)  \n- (**“What time would you like your order?”**)  \n- (**“Can I have your number?”**)  \n- (**“And finally, Can I have your name?”**)\n\n**3. Check Availability**  \nUse the (**Menu Database**) tool to check item availability.  \nIf unavailable, suggest polite alternatives.\n\n**4. Confirm the Full Order**  \n(**“Here’s your order: [list items, quantity, instructions]. Pickup/delivery at [time]. Is that correct?”**)  \n→ (**Wait for confirmation.**)\n\n**5. Finalize the Order**  \nUse (**Update Orders**) to save the order.  \n(**“Got it! Your order is confirmed. It’ll be ready around [estimated time]. Thank you!”**)\n\n\n\n### (**🪑 Reservation Flow**)  \n\n**1. Start Reservation Conversation**  \n(**“Sure! Let’s make a reservation. What day and time would you like?”**)\n\n**2. Ask for Info One Step at a Time:**  \n- (**“How many guests will be joining?”**)  \n- (**“Do you have a seating preference? (e.g., near the window)”**)  \n- (**“May I have your name, please?”**)  \n- (**“Can I get your phone number too?”**)  \n- (**“Any special request?”**)\n\n**3. Check Time Availability**  \nUse (**Get Reservation Availability**).  \n→ If available: continue.  \n→ If not:  \n(**“That slot is booked, but here are other available times: [list options]. Would any of those work for you?”**)\n\n**4. Finalize Booking**  \nUse:  \n- (**Update Reservation Availability**)  \n- (**Update Confirmed Reservation**)  \n\n(**“Your table is reserved for [date & time], under the name [name], for [number of guests]. We look forward to having you!”**)\n\n---\n\n### 🔄 **Switching Between Order and Reservation**  \n\nIf the user says something that clearly means they want to **switch topics** (like from reservation to food order or vice versa), stop the current flow immediately.\n\nExamples:\n\n- If the user says anything like **“I want to order food”** or **“I’d like to place an order”** while in the reservation flow, **end the current process** and respond with:\n\n(**“Sure! Let’s switch to placing a food order. What would you like to order?”**)\n\n- If the user says **“I want to book a reservation”** while in the food order flow, switch smoothly:\n\n(**“Of course! Let’s switch to booking a reservation. What day and time would you like?”**)\n\n❌ Never get stuck trying to find a name or complete a step.  \n✅ Always listen for intent and reset accordingly.\n\n\n\n### (**⏳ Wait Behavior Rule**)  \nAfter each message or question, (**wait for the user to respond**) before continuing.  \n(**Do not send multiple messages in a row.**)  \nThis keeps the conversation natural and avoids overwhelming the customer.\n\n\n\n### (**🧠 Tool Guide (Simplified)**)  \n- (**Menu Database**) — Use this to check food availability.  \n- (**Get Orders**) — Use this to fetch previous orders.  \n- (**Update Orders**) — Use this to save new orders.  \n- (**Get Reservation Availability**) — Use this to check table availability.  \n- (**Update Reservation Availability**) — Use this to block a booked time.  \n- (**Update Confirmed Reservation**) — Use this to save customer’s booking info.  \n- (**Get Confirmed Reservation**) — Use this to fetch past bookings.  \n- (**Simple Memory**) — Use this to temporarily store name, time, etc.  \n- (**Gemini Chat Model**) — Use this to rephrase responses and customer input.\n\n\n\n### (**🔁 Example Interactions**)  \n\n**Example 1 – Food Order**  \nCustomer: (**\"I'd like three veggie burgers, one with no tomato, and an order of fries, for pickup at 6:30 pm.\"**)  \nAI: (**\"Confirming your order: three veggie burgers—one without tomato—and one order of fries. Pickup at 6:30 pm. Is that correct?\"**)\n\n**Example 2 – Reservation**  \nCustomer: (**\"I'd like a table for two tomorrow at 8 pm near the window.\"**)  \nAI: (**\"Your reservation for two people tomorrow at 8 pm, near the window, is confirmed. See you then!\"**)\n\n---\n\n### (**💡 Interaction Tips**)  \n\n✅ (**Ask only one question at a time.**)  \n✅ (**Always confirm user details before finalizing transactions.**)  \n✅ (**Be polite and human-like.**)  \n❌ (**Never ask multiple questions in one message.**)  \n❌ (**Never assume or finalize without confirmation.**)  \n- (**Minimize response time**) for better user experience.  \n- (**Current date:** {{ $now }})\n\n\n### (**🏁 Closing Message Example**)  \n(**“Thank you for choosing Item 7. Have a delicious day! 😋”**)\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "aa1772c2-f609-4308-99e7-5ed80b8c7843",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        544
+      ],
+      "id": "2d542ac0-5ffc-44d5-93a8-18f9edd66a1c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "4CEOk9oTOD6qXSib",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=message_type\n\n",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -576,
+        528
+      ],
+      "id": "66d04c75-144b-46c3-8a20-a500e1ed4b5e",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1wZs0OOmCWi6k74u4QbjZNDKJCRWZ2AZqNTfwoFr0EwE",
+          "mode": "list",
+          "cachedResultName": "Olas Food Retaurant",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wZs0OOmCWi6k74u4QbjZNDKJCRWZ2AZqNTfwoFr0EwE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wZs0OOmCWi6k74u4QbjZNDKJCRWZ2AZqNTfwoFr0EwE/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -368,
+        528
+      ],
+      "id": "2964f308-3add-4556-a05b-241cf3160ab4",
+      "name": "Get Reservation Availability",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NZRn7vFcL5IAJR6g",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1wZs0OOmCWi6k74u4QbjZNDKJCRWZ2AZqNTfwoFr0EwE",
+          "mode": "list",
+          "cachedResultName": "Olas Food Retaurant",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wZs0OOmCWi6k74u4QbjZNDKJCRWZ2AZqNTfwoFr0EwE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wZs0OOmCWi6k74u4QbjZNDKJCRWZ2AZqNTfwoFr0EwE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $fromAI('Date__using_to_match_', 'This Specifies the day the customer wants to make a reservation.') }}",
+            "Time": "={{ $fromAI('Time', 'This Represents the specific time slot the customer requests for reservation.') }}"
+          },
+          "matchingColumns": [
+            "Date"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -128,
+        512
+      ],
+      "id": "15f963b9-5af5-40ce-af50-06d41429736b",
+      "name": "Update Reservation Availability",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NZRn7vFcL5IAJR6g",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1V0B8k0b3wOyM9xGS4HNxYVsm9zPMd48g2Ty1DhGQ8fI",
+          "mode": "list",
+          "cachedResultName": "Confirmed Reservation Olas Food Restaurant",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1V0B8k0b3wOyM9xGS4HNxYVsm9zPMd48g2Ty1DhGQ8fI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1V0B8k0b3wOyM9xGS4HNxYVsm9zPMd48g2Ty1DhGQ8fI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "Reservation ID"
+          ],
+          "schema": [
+            {
+              "id": "Reservation ID",
+              "displayName": "Reservation ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Contact Number",
+              "displayName": "Contact Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reservation Date",
+              "displayName": "Reservation Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reservation Time",
+              "displayName": "Reservation Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Number of Guest",
+              "displayName": "Number of Guest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Seating Preference",
+              "displayName": "Seating Preference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Special Request",
+              "displayName": "Special Request",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Confirmed By (Staff Name/AI)",
+              "displayName": "Confirmed By (Staff Name/AI)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Confirmation Timestamp",
+              "displayName": "Confirmation Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        144,
+        480
+      ],
+      "id": "49c95cdd-1ad5-4338-a0f6-56d1619c8513",
+      "name": "Get Confirmed Reservation",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NZRn7vFcL5IAJR6g",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1V0B8k0b3wOyM9xGS4HNxYVsm9zPMd48g2Ty1DhGQ8fI",
+          "mode": "list",
+          "cachedResultName": "Confirmed Reservation Olas Food Restaurant",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1V0B8k0b3wOyM9xGS4HNxYVsm9zPMd48g2Ty1DhGQ8fI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1V0B8k0b3wOyM9xGS4HNxYVsm9zPMd48g2Ty1DhGQ8fI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Name": "={{ $fromAI('Customer_Name','This is the Full name of the customer placing the reservation.') }}",
+            "Special Request": "={{ $fromAI('Special_Request','This is the Additional requests or notes (e.g., birthday, no peanuts, wheelchair access') }}",
+            "Confirmed By (Staff Name/AI)": "={{ $fromAI('Confirmed_By_Staff_Name_AI_', 'This is Who confirmed the reservation system either human agent or AI Agent') }}",
+            "Confirmation Timestamp": "={{ $fromAI('Confirmation_Timestamp', 'This is the Time when reservation was finalized') }}",
+            "Reservation ID": "={{ $fromAI('Reservation_ID',  'This is the Unique identifier for this reservation.') }}",
+            "Contact Number": "={{ $fromAI('Contact_Number',  'This is the Phone number used to reach the customer.') }}",
+            "Email": "={{ $fromAI('Email',  \"This is the Customer's email address.\") }}",
+            "Reservation Date": "={{ $fromAI('Reservation_Date',  'This is the Date for the reservation (e.g., 2025-07-05)') }}",
+            "Number of Guest": "={{ $fromAI('Number_of_Guest', 'This is the Number of people included in the booking') }}",
+            "Seating Preference": "={{ $fromAI('Seating_Preference', 'This is the specific seating request (e.g., window, outdoor, booth)') }}",
+            "Reservation Time": "={{ $fromAI('Reservation_Time', 'This is the Time of day for the reservation.') }}"
+          },
+          "matchingColumns": [
+            "Customer Name"
+          ],
+          "schema": [
+            {
+              "id": "Reservation ID",
+              "displayName": "Reservation ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Contact Number",
+              "displayName": "Contact Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reservation Date",
+              "displayName": "Reservation Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reservation Time",
+              "displayName": "Reservation Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Number of Guest",
+              "displayName": "Number of Guest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Seating Preference",
+              "displayName": "Seating Preference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Special Request",
+              "displayName": "Special Request",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Confirmed By (Staff Name/AI)",
+              "displayName": "Confirmed By (Staff Name/AI)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Confirmation Timestamp",
+              "displayName": "Confirmation Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        432,
+        480
+      ],
+      "id": "97a87add-11b3-4671-a4d7-b69b941d7678",
+      "name": "Update Confirmed Reservation1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NZRn7vFcL5IAJR6g",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1oRP4Qch85ms9ZgKqWFNPO6jH2lAKlhrTlO_YLMU1KIg",
+          "mode": "list",
+          "cachedResultName": "Orders Olas Food",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRP4Qch85ms9ZgKqWFNPO6jH2lAKlhrTlO_YLMU1KIg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRP4Qch85ms9ZgKqWFNPO6jH2lAKlhrTlO_YLMU1KIg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        704,
+        480
+      ],
+      "id": "8b7cb55f-9f37-406d-babf-338a16664fe7",
+      "name": "Get Orders",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NZRn7vFcL5IAJR6g",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1oRP4Qch85ms9ZgKqWFNPO6jH2lAKlhrTlO_YLMU1KIg",
+          "mode": "list",
+          "cachedResultName": "Orders Olas Food",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRP4Qch85ms9ZgKqWFNPO6jH2lAKlhrTlO_YLMU1KIg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRP4Qch85ms9ZgKqWFNPO6jH2lAKlhrTlO_YLMU1KIg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Order ID": "={{ $fromAI('Order_ID', 'This is the Unique identifier to match or update existing order') }}",
+            "Customer Name": "={{ $fromAI('Customer_Name', 'This is the Name of the person placing the order') }}",
+            "Food Items": "={{ $fromAI('Food_Items',  'This is the Selected food items from the menu') }}",
+            "Quantity ": "={{ $fromAI('Quantity_',  'This is the Number of each item ordered') }}",
+            "Special Instruction": "={{ $fromAI('Special_Instruction', 'This is the Custom requests (e.g., no onions)') }}",
+            "Pickup/Delivery": "={{ $fromAI('Pickup_Delivery', 'This is the Fulfillment method either Pickup method or Delivery method') }}",
+            "Time": "={{ $fromAI('Time',  'Preferred pickup or delivery time') }}",
+            "Status": "={{ $fromAI('Status', 'Order progress (e.g., confirmed, pending)') }}"
+          },
+          "matchingColumns": [
+            "Order ID"
+          ],
+          "schema": [
+            {
+              "id": "Order ID",
+              "displayName": "Order ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Food Items",
+              "displayName": "Food Items",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Quantity ",
+              "displayName": "Quantity ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Special Instruction",
+              "displayName": "Special Instruction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pickup/Delivery",
+              "displayName": "Pickup/Delivery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        880,
+        528
+      ],
+      "id": "74838d77-a559-45d0-8281-f32d097045ea",
+      "name": "Update Orders",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NZRn7vFcL5IAJR6g",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to access Menu items",
+        "workflowId": {
+          "__rl": true,
+          "value": "GuhGQdkTucYqzbuh",
+          "mode": "list",
+          "cachedResultName": "DATA"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI(\"query\", \"This is the query that check customer's specific request or filtering criteria used to retrieve relevant food availilability  items from 'Menu Database'.\")}}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        512
+      ],
+      "id": "07d87eb8-8e05-4817-b69d-7338cf8fa81f",
+      "name": "Menu Database"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1d5877ff-2fb6-45af-9289-9b3fa0445960",
+              "name": "chatId",
+              "value": "={{ $json.body.senderData.chatId }}",
+              "type": "string"
+            },
+            {
+              "id": "27037e3f-b4f9-45d0-9d89-a064a0a9e0bd",
+              "name": "message",
+              "value": "={{ $json.body.messageData.textMessageData.textMessage }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        128
+      ],
+      "id": "d2476f4a-3b9c-4ccd-ad2e-bdcc4fea112b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.messageData.typeMessage }}\n",
+                    "rightValue": "audioMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "38a1531d-b9aa-4c8e-af1c-ae83ee26b19c"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "31f7f62e-9255-4184-9f28-f3795a74f644",
+                    "leftValue": "={{ $json.body.messageData.typeMessage }}",
+                    "rightValue": "textMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -576,
+        80
+      ],
+      "id": "d1b41b7f-bd9f-4ecb-8074-9028c90bf51c",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        720,
+        64
+      ],
+      "id": "14d05810-0409-4fb1-80b1-3b7aa0eed32a",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://7105.api.greenapi.com/waInstance7105298752/sendMessage/09979323e196438a9b0830d60818c8891487242ac7934704be",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chatId\": \"{{ $json.chatId }}\",\n  \"message\": \"{{ $json.output }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        944,
+        64
+      ],
+      "id": "4ee60ccd-0697-4443-995e-68d799f223b0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// This code runs once for each item\n\nconst cleanedOutput = $json.output.replace(/\\n+/g, ' ');\n\nreturn {\n  json: {\n    ...$json,\n    output: cleanedOutput,\n  },\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        0
+      ],
+      "id": "7a541446-4b13-4a9e-8fc9-399236ce266d",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Reservation Availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Reservation Availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Confirmed Reservation": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Confirmed Reservation1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Orders": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Orders": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Menu Database": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e4b3fe1b-7f00-435f-8645-620bd58b0673",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0fc613f8ddd226f849dc3db94d7febfa7c8f777fd55bffeb0a3ec2d17c20487b"
+  },
+  "id": "KaaIIFNApXOV6BQA",
+  "tags": []
+}
